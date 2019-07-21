@@ -195,3 +195,11 @@ const seedUsers = () => {
 
 // "seed-participants": "mongoimport --db ROCARR --collection participants --drop --jsonArray --file participant-seeds.js",
 // "seed-users": "mongoimport --db ROCARR --collection users --drop --jsonArray --file user-seeds.js"
+
+
+// These work! 
+// db.participants.find( {'contactLog.createdBy.email': 'ruby@gc.co' } )
+// db.participants.find( {'contactLog.followUp': {$exists:true}})
+// db.participants.find( {'contactLog.followUp.description': 'Send referral to Hunter Genetics' })
+// db.participants.find( {'contactLog.followUp.assignTo.email': 'ruby@gc.co' }). *** yay!! Can find follow-ups!
+// db.participants.find( {'contactLog.followUp.openAssignment': false }) *** yay also works
