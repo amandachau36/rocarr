@@ -1,3 +1,5 @@
+
+
 const MongoClient = require('mongodb').MongoClient;
 let db; // global var to store the db connection object
 
@@ -66,7 +68,7 @@ const seedParticipants = (err, res) => {
                 ],
                 'openAssignment': false
               }
-            },
+            },  // end of contactLog #1
             {
               'date': new Date('2011-04-11T10:20:30Z'),
               'createdBy': {
@@ -88,7 +90,7 @@ const seedParticipants = (err, res) => {
         },
 
 
-
+        //////////////////////////////////////////////// doc 2
         {
           'id': 2,
           'name': 'Mary',
@@ -197,7 +199,7 @@ const seedUsers = () => {
 // "seed-users": "mongoimport --db ROCARR --collection users --drop --jsonArray --file user-seeds.js"
 
 
-// These work! 
+// These work!
 // db.participants.find( {'contactLog.createdBy.email': 'ruby@gc.co' } )
 // db.participants.find( {'contactLog.followUp': {$exists:true}})
 // db.participants.find( {'contactLog.followUp.description': 'Send referral to Hunter Genetics' })
