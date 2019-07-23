@@ -167,19 +167,19 @@ const seedUsers = () => {
       {
         'name': 'Jane',
         'email': 'jane@gc.co',
-        'password': 'chicken',
+        'password': '$2b$10$BNx.duKXgp5Q5P1Rv5R3C.Q8841rF7suR6WkF2001Fa8fyz2UDJsm',
         'role': 'Genetic Counsellor'
       },
       {
         'name': 'Ruby',
         'email': 'ruby@gc.co',
-        'password': 'chicken',
+        'password': '$2b$10$1z0KlCbd4yi3GpbtYkM.YOgZVGl54fpjBxa/aErZC9HpjRrn2fTIW',
         'role': 'Genetic Counsellor'
       },
       {
         'name': 'Pat',
         'email': 'pat@eval.co',
-        'password': 'chicken',
+        'password': '$2b$10$TXF1t6RVIijZrPH5bObmpOqyUySNCxhiBSaAIMoB.AT21L2IcdDe.',
         'role': 'Evaluator'
       }
     ],
@@ -205,3 +205,9 @@ const seedUsers = () => {
 // db.participants.find( {'contactLog.followUp.description': 'Send referral to Hunter Genetics' })
 // db.participants.find( {'contactLog.followUp.assignTo.email': 'ruby@gc.co' }). *** yay!! Can find follow-ups!
 // db.participants.find( {'contactLog.followUp.openAssignment': false }) *** yay also works
+
+
+// to encrypt and salt password for seeds
+// in terminal/ node
+// b = require('bcrypt')
+// b.hash('chicken', 10, (err, hash) => console.log(err, hash))
