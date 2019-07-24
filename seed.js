@@ -46,25 +46,25 @@ const seedParticipants = (err, res) => {
               'interactionReason': 'Initial contact',
               'interactionDuration': 20,
               'actionsTaken': [
-                {'AT1': 'Discussed research results'},
-                {'AT2': 'Discussed family implications'}
+                'AT1',
+                'AT2'
               ],
               'documentsSentVia': 'email',
               'documentsSent': [
-                {'D1': 'About ROCARR'},
-                {'D6': 'Interpreting results'},
-                {'D5': 'Implications for you and your family'}
+                'D1',
+                'D6',
+                'D5'
               ],
               'notes': 'Answered questions about',
               'followUp': {
                 'actionsRequired': [
-                  {'AR1': 'Referral'},
-                  {'AR2': 'Follow-up call'},
+                  'AR1',
+                  'AR2',
                 ],
                 'description': 'Send referral to Hunter Genetics',
                 'dateDue': new Date('2011-04-11T10:20:30Z'),
                 'assignTo': [
-                  {'email': 'jane@gc.co'},
+                    'jane@gc.co',
                 ],
                 'openAssignment': false
               }
@@ -80,11 +80,11 @@ const seedParticipants = (err, res) => {
               'interactionReason': 'Referral',
               'interactionDuration': 30,
               'actionsTaken': [
-                {'AT4': 'Referred participant'}
+                'AT4',
               ],
               'documentsSentVia': 'None',
               'notes': 'Answered questions about',
-              'followUp': 'No'
+              'followUp': null
             }
           ]
         },
@@ -107,26 +107,26 @@ const seedParticipants = (err, res) => {
               'interactionReason': 'Initial contact',
               'interactionDuration': 45,
               'actionsTaken': [
-                {'AT1': 'Discussed research results'},
-                {'AT3': 'Discussed referral options'}
+                'AT1',
+                'AT3'
               ],
               'documentsSentVia': 'email',
               'documentsSent': [
-                {'D6': 'Interpreting results'},
-                {'D5': 'Implications for you and your family'},
-                {'D4': 'Privacy, security, and data sharing'}
+                'D6',
+                'D5',
+                'D4'
               ],
               'notes': 'Answered questions about',
               'followUp': {
-                'actionRequired': [
-                  {'AR1': 'Referral'},
-                  {'AR2': 'Follow-up call'}
+                'actionsRequired': [
+                  'AR1',
+                  'AR2'
                 ],
                 'description': 'Send referral to Hunter Genetics',
                 'dateDue': new Date('2011-04-11T10:20:30Z'),
                 'assignTo': [
-                  {'email': 'jane@gc.co'},
-                  {'email': 'ruby@gc.co'}
+                  'jane@gc.co',
+                  'ruby@gc.co'
                 ]
               }
             },
@@ -141,11 +141,11 @@ const seedParticipants = (err, res) => {
               'interactionReason': 'Referral',
               'interactionDuration': 30,
               'actionsTaken': [
-                {'AT4': 'Referred participant'}
+                'AT4'
               ],
               'documentsSentVia': 'None',
               'notes': 'Answered questions about',
-              'followUp': 'No'
+              'followUp': null
             }
           ]
         }

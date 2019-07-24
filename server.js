@@ -21,7 +21,7 @@ app.listen(PORT, () => {
 });
 
 
-const MongoClient = require('mongodb').MongoClient;
+const {MongoClient, ObjectID} = require('mongodb');
 let db; // global car to story the db connection object
 
 
@@ -40,9 +40,9 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
 const jwt = require("jsonwebtoken");
-// const passportJWT = require("passport-jwt");
-// const extractJWT = passportJWT.ExtractJwt;
-// const jwtStrategy = require('passport-jwt').Stragegy;
+const passportJWT = require("passport-jwt");
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwtSecret = 'this should be in ENV';
 
 
@@ -59,12 +59,7 @@ passport.deserializeUser(function(email, done) {
   db.collection('users')({ email: email }, (err, user) => done(err, user));
 });
 
-
-
-
-
-
-
+//local
 passport.use( new LocalStrategy(
   {
     //customization because using email instead of username
@@ -72,10 +67,9 @@ passport.use( new LocalStrategy(
     passwordField: 'password'
   },
   (email, password, done) => {
-    console.log('IN STRATEGY', email);
+    // console.log('IN STRATEGY', email);
+    // console.log('USER QUERY:', { email: email, password: hash });
 
-
-       // console.log('USER QUERY:', { email: email, password: hash });
        // look in users database for user's  email
        db.collection('users').findOne({ email: email}, (err, user) => {
          // return early if err
@@ -92,8 +86,7 @@ passport.use( new LocalStrategy(
              console.log({err, success}, password, user.password);
 
               if( success ){
-                console.log('all good????');
-
+                console.log('all good - auth/login sucessful ');
 
                 return done(null, user);
 
@@ -111,26 +104,50 @@ passport.use( new LocalStrategy(
 )); //passport.user
 
 
+// POST /login - use local strategy above and generate JWT token if successful
+app.post('/login', passport.authenticate('local'), (req, res) => {
 
-app.post('/login',
-  passport.authenticate(
-    'local'
-  // , { failureRedirect: '/loginxx' }
-  ),
-  function(req, res) {
-    // console.log('res', res);
     console.log('res', req.user ); //, res.user);
     const user = req.user;
-    //your_jwt_secret should be in ENV or somewhere secret
-    const token = jwt.sign(user, 'your_jwt_secret');
+
+    // only save _id in
+    const token = jwt.sign({ id: user._id }, jwtSecret);
 
     console.log('token', token);
 
     console.log('GOT HERE');
-    res.json({status: 'success', token});
-  });
+    res.json({
+      email: user.email,
+      status: 'success',
+      token
+    });
+});
 
 
+//use jwtStrategy to determing if user has a valid JWT token
+let opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = jwtSecret;
+// opts.issuer = 'accounts.examplesoft.com';
+// opts.audience = 'yoursite.net';
+passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
+  console.log('hello from JWT STrategy');
+  console.log('*******jwt_payload:', jwt_payload);
+    db.collection('users').findOne({'_id': new ObjectID(jwt_payload.id)}, (err, user) => {
+        if (err) {
+            console.log("err from JWT strategy:", err);
+            return done(err, false);
+        }
+        if (user) {
+            console.log('Success from JWT Strategy', user);
+            return done(null, user);
+        } else {
+            console.log('not sure what this is but it failed');
+            return done(null, false);
+
+        }
+    });
+}));
 
 
 
@@ -151,17 +168,32 @@ app.get('/participants', (req, res) => {
   });
 });
 
-//follow-up list
-app.get('/participants/followup', (req, res) => {
-  // take current user from passport
+
+//find follow-up list for each user how who is logged in
+app.get('/participants/followup', passport.authenticate('jwt') ,(req, res, next) => {
+  //take current user from passport
+
+  //authorization
+  console.log('passport.auth(JWT) worked');
+  // console.log('req', req);
+  // res.json({ status: 'success'});
 
   // Find current user
-  const currentUser = 'ruby@gc.co';
+  console.log("req.user.email", req.user.email);
+  const currentUser = req.user.email;
   // const currentUser = 'jane@gc.co';
-  db.collection('participants').find({ $or: [
-    {'contactLog.followUp.assignTo.email': currentUser },
-    {'contactLog.followUp.openAssignment': true }
-  ]}).toArray( (err, results) => {
+
+
+  db.collection('participants').find(
+    {
+      $or: [
+        {'contactLog.followUp.assignTo': currentUser },
+        {'contactLog.followUp.openAssignment': true }
+      ]
+    }
+    // Projection:
+    // { contactLog: }
+  ).toArray( (err, results) => {
     if(err){
       console.log('error');
       res.json({error: err})
@@ -258,13 +290,6 @@ app.post('/participant/:id/contact_log', (req, res) => {
 
 
 
-
- // delete follow up
-
-// edit contact log
-
-
-
 // create new participant
 
 
@@ -272,7 +297,38 @@ app.post('/participant/:id/contact_log', (req, res) => {
 
 
 
+
+
 // No delete because this we need to keep all records in a research study
+
+//Create new user
+// this works but ?callback hell and need to do something with err
+// salt and encrypt password prior to saving
+
+app.post('/user', (req, res) => {
+  console.log('you reached POST /user');
+  console.log( req.body );
+  const { name, email, password, role} = req.body;
+  db.collection('users').findOne({ email: email}, (err, user) => {
+
+    if (user) {
+      // return early account already exists
+      return res.json({ error: "This email already has an account" })
+    } else {
+      console.log('create new account')
+      db.collection('users').insertOne({ name: name, email: email, password: password, role: role })
+        .then( result => res.json({ status: `success - creating new account with _id: ${result.insertedId}`}))
+        .catch( error => console.error(`Failed to insert item: ${error}`));
+
+    }
+
+  }); // db.collection
+
+});
+
+
+
+
 
 // all users index page
 app.get('/users', (req, res) => {
