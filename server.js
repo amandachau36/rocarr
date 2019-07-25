@@ -1,6 +1,137 @@
 const express = require('express');
 const app = express();
 const bcrypt = require('bcrypt');
+const jwtSecret = 'this should be in ENV';
+
+
+// const socketIO = require('socket.io');
+// const http = require('http');
+// const port = 4001;
+// const chatServer = http.createServer(app);
+
+// const io = socketIO(chatServer);
+
+const PORT = process.argv[2] || 3333;
+
+var server = require('http').Server(app);
+const io = require('socket.io')(server);
+
+const sharedServer = server.listen(PORT, () =>{
+  console.log('Listening for HTTP connections on port ' + PORT);
+});
+
+
+// middleware for websocket connection: check token if present
+io.use((socket, next) => {
+
+  let token = socket.handshake.query.token;
+
+  if(token){
+
+    const payload = jwt.verify(token, jwtSecret);
+    console.log({payload});
+
+    db.collection('users').findOne({'_id': new ObjectID(payload.id)}, (err, user) => {
+      if (err) {
+        console.log("err from JWT socket handshake user find:", err);
+        // return done(err, false);
+        return next(err);
+      }
+      if (user) {
+        console.log('Success from JWT socket handshake user', user);
+        // return done(null, user);
+        socket.user = user;
+        return next();
+      } else {
+        console.log('not sure what this is but it failed');
+        // return done(null, false);
+        return next(new Error('authentication error, unknown (invalid user ID?)'));
+
+      }
+    });
+
+
+  } else {
+    // User is not logged in, i.e. assume they are a participant
+    socket.user = null;
+  }
+
+  return next();
+  // if (isValid(token)) {
+  //   return next();
+  // }
+  // return next(new Error('authentication error'));
+});
+
+
+io.on('connection', (socket) => {
+
+  // need to authenicate
+
+  console.log('got connection', socket.handshake.query.token, socket.user);
+
+  if(socket.user){
+    // Sockets with valid users are understood to be logged-in counsellors
+    // They should be made to join a room with all other counsellors, so
+    // they can be notified when a participant wants to start a chat
+    // (and then they can join the participant's room automatically)
+
+    console.log('======================== Counsellor connected:', socket.id);
+    socket.join('counsellors-lounge');
+
+    // setInterval(()=> {
+    //   socket.emit('ping', {content: true});
+    // }, 2000);
+
+  } else {
+
+    // Socket belongs to a participant, so tell counsellors about it
+    // and have them join the room for this participant
+    io.to('counsellors-lounge').emit('participant-joined', {
+       id: socket.id
+    });
+
+    console.log('+++++++++++++ Participant connected', socket.id);
+
+    // Notify anyone who joins this participant's room
+    // when someone joins it
+    io.of('/').in(socket.id).on('join', data => {
+      console.log('Counsellor joined!', data);
+    });
+
+
+    // console.log(io.of('/'));
+
+    // Get the IDs of all the counsellors currently connected
+    const counsellorsLounge = io.nsps['/'].adapter.rooms['counsellors-lounge'];
+    console.log('who is in the counsellors Lounge?', counsellorsLounge);
+
+  
+
+    // io.of('/').in('counsellors-lounge').clients((error, clients) => {
+    //   if (error) throw error;
+    //   console.log('clients:', clients);
+    //
+    //   // Use each ID to get to socket for that counsellor,
+    //   // and make them join the room for this pariticipant
+    //   clients.forEach( id => {
+    //     const counsellorSocket = io.of('/').connected[id];
+    //     counsellorSocket.join(socket.id);
+    //     console.log(`Counsellor ${id} joined room ${socket.id}`);
+    //   });
+
+    // });
+
+  } // participant connection
+
+
+
+});
+
+// io.to('some room').emit('some event');
+
+
+
 
 // const code_lookup = require('./lib/code_lookup')
 // console.log(code_lookup);
@@ -15,10 +146,9 @@ app.use(express.urlencoded({ extended: true}));
 
 //set-up basic server
 // TODO: what is process.agrv[2]
-const PORT = process.argv[2] || 3333;
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`listening on port ${PORT}`);
+// });
 
 
 const {MongoClient, ObjectID} = require('mongodb');
@@ -43,7 +173,7 @@ const jwt = require("jsonwebtoken");
 const passportJWT = require("passport-jwt");
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwtSecret = 'this should be in ENV';
+
 
 
 app.use(passport.initialize());
@@ -170,6 +300,7 @@ app.get('/participants', (req, res) => {
 
 
 //find follow-up list for each user how who is logged in
+// is next for catching errors?????
 app.get('/participants/followup', passport.authenticate('jwt') ,(req, res, next) => {
   //take current user from passport
 
@@ -224,8 +355,10 @@ app.get('/participants/search/:query', (req, res) => {
 
 
 //participant/:id
-app.get('/participant/:id', (req, res) => {
+app.get('/participant/:id', passport.authenticate('jwt'), (req, res, next) => {
+
   const participant = parseInt(req.params.id);
+  console.log("hello from /participant/:id", participant)
   // res.json({status: `You reached participant, ${participant}`});
   db.collection('participants').findOne({ id: participant }, (err, result) => {
     if(err){
