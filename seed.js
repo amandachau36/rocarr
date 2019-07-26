@@ -30,10 +30,72 @@ const seedParticipants = (err, res) => {
 
     db.collection('participants').insertMany(
       [
+        // {
+        //   'id': 1,
+        //   'name': 'bob',
+        //   'email': 'bob@ga.co',
+        //   'contactLog': [
+        //     {
+        //       'date': new Date('2011-04-11T10:20:30Z'),
+        //       'createdBy': {
+        //         'email': 'jane@gc.co',
+        //         'name': 'Jane',
+        //         'role': 'Genetic Counsellor'
+        //       },
+        //       'interactionType': 'email',
+        //       'interactionReason': 'Initial contact',
+        //       'interactionDuration': 20,
+        //       'actionsTaken': [
+        //         'AT1',
+        //         'AT2'
+        //       ],
+        //       'documentsSentVia': 'email',
+        //       'documentsSent': [
+        //         'D1',
+        //         'D6',
+        //         'D5'
+        //       ],
+        //       'notes': 'Answered questions about',
+        //       'followUp': {
+        //         'actionsRequired': [
+        //           'AR1',
+        //           'AR2',
+        //         ],
+        //         'description': 'Send referral to Hunter Genetics',
+        //         'dateDue': new Date('2011-04-11T10:20:30Z'),
+        //         'assignTo': [
+        //             'jane@gc.co',
+        //         ],
+        //         'openAssignment': false
+        //       }
+        //     },  // end of contactLog #1
+        //     {
+        //       'date': new Date('2011-04-11T10:20:30Z'),
+        //       'createdBy': {
+        //         'email': 'jane@gc.co',
+        //         'name': 'Jane',
+        //         'role': 'Genetic Counsellor'
+        //       },
+        //       'interactionType': 'phone',
+        //       'interactionReason': 'Referral',
+        //       'interactionDuration': 30,
+        //       'actionsTaken': [
+        //         'AT4',
+        //       ],
+        //       'documentsSentVia': 'None',
+        //       'notes': 'Answered questions about',
+        //       'followUp': null
+        //     }
+        //   ]
+        // },
+
         {
-          'id': 1,
-          'name': 'bob',
+          'id': 123456,
+          'name': 'Bob Smith',
           'email': 'bob@ga.co',
+          'postalCode': 2000,
+          'homePhone': '(02) 8318 2912',
+          'researchStudy': 'Project Genome',
           'contactLog': [
             {
               'date': new Date('2011-04-11T10:20:30Z'),
@@ -90,11 +152,15 @@ const seedParticipants = (err, res) => {
         },
 
 
+
         //////////////////////////////////////////////// doc 2
         {
-          'id': 2,
-          'name': 'Mary',
-          'email': 'Mary@ga.co',
+          'id': 111111,
+          'name': 'Mary Lee',
+          'email': 'mary@ga.co',
+          'postalCode': 2000,
+          'homePhone': '(02) 8318 2000',
+          'researchStudy': 'Project Genome',
           'contactLog': [
             {
               'date': new Date('2011-04-11T10:20:30Z'),

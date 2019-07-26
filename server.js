@@ -340,8 +340,10 @@ app.get('/participants/followup', passport.authenticate('jwt'), (req, res, next)
 
 //participant/search/:name
 //** how do I anchor to the being of first or last name ***
-app.get('/participants/search/:query', (req, res) => {
+app.get('/participants/search/:query', passport.authenticate('jwt'), (req, res, next) => {
+
   let nameQuery = req.params.query;
+  console.log(nameQuery);
   nameQuery = new RegExp(nameQuery);
   // this allows for a loose search which is also case 'i'nsensitive
   db.collection('participants').find({ name: { $regex: nameQuery, $options: 'i' } }).toArray( (err, results) => {
@@ -372,9 +374,8 @@ app.get('/participant/:id', passport.authenticate('jwt'), (req, res, next) => {
 
 
 // create new contact log
-app.post('/participant/:id/contact_log', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-
-  console.log("************req.user.email********", req.user.email);
+app.post('/participant/:id/contact_log', passport.authenticate('jwt'), (req, res, next) => {
+//
 
 
   console.log('POST /reservations: params:', req.body);
@@ -388,9 +389,9 @@ app.post('/participant/:id/contact_log', passport.authenticate('jwt', { session:
     contactLog:   {
       date: date,
       createdBy: {
-        email: 'jane@ga.co',
-        name: 'Jane',
-        role: 'Genetic Counsellor'
+        email: req.user.email,
+        name: req.user.name,
+        role: req.user.role,
       },
       interactionType: interactionType,
       interactionReason: interactionReason,
