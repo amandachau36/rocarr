@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
     const counsellorsLounge = io.nsps['/'].adapter.rooms['counsellors-lounge'];
     console.log('who is in the counsellors Lounge?', counsellorsLounge);
 
-  
+
 
     // io.of('/').in('counsellors-lounge').clients((error, clients) => {
     //   if (error) throw error;
@@ -301,7 +301,7 @@ app.get('/participants', (req, res) => {
 
 //find follow-up list for each user how who is logged in
 // is next for catching errors?????
-app.get('/participants/followup', passport.authenticate('jwt') ,(req, res, next) => {
+app.get('/participants/followup', passport.authenticate('jwt'), (req, res, next) => {
   //take current user from passport
 
   //authorization
@@ -372,7 +372,10 @@ app.get('/participant/:id', passport.authenticate('jwt'), (req, res, next) => {
 
 
 // create new contact log
-app.post('/participant/:id/contact_log', (req, res) => {
+app.post('/participant/:id/contact_log', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+
+  console.log("************req.user.email********", req.user.email);
+
 
   console.log('POST /reservations: params:', req.body);
 
@@ -381,40 +384,42 @@ app.post('/participant/:id/contact_log', (req, res) => {
   console.log('id', req.params.id);
 
 
-  db.collection('participants').updateOne(
+  const newLog = { // apppend to contact log array
+    contactLog:   {
+      date: date,
+      createdBy: {
+        email: 'jane@ga.co',
+        name: 'Jane',
+        role: 'Genetic Counsellor'
+      },
+      interactionType: interactionType,
+      interactionReason: interactionReason,
+      interactionDuration: interactionDuration,
+      actionsTaken: [actionsTaken],
+      documentsSentVia: [documentsSentVia],
+      documentsSent: documentsSent,
+      notes: notes,
+      followUp: {
+        actionsRequired: [actionsRequired],
+        description: description,
+        dateDue: dateDue,
+        assignTo: [assignTo],
+        openAssignment: openAssignment
+      }
+    }  // end of contactLog
+  };
 
+  db.collection('participants').updateOne(
     //find the document to update using this participant id
     {id: parseInt(req.params.id) },
-    {
-      $push: { // apppend to contact log array
-        contactLog:   {
-          date: date,
-          createdBy: {
-            email: 'jane@ga.co',
-            name: 'Jane',
-            role: 'Genetic Counsellor'
-          },
-          interactionType: interactionType,
-          interactionReason: interactionReason,
-          interactionDuration: interactionDuration,
-          actionsTaken: actionsTaken,
-          documentsSentVia: documentsSentVia,
-          documentsSent: documentsSent,
-          notes: notes,
-          followUp: {
-            actionsRequired: actionsRequired,
-            description: description,
-            dateDue: dateDue,
-            assignTo: assignTo,
-            openAssignment: openAssignment
-          }
-        }  // end of contactLog
-      } //end of push
-    }, //end of second arguement
+
+    { $push: newLog },
+
     (err, result) => {
       if(err) return res.json({ error: err });
       console.log('update results :', result );
-      res.json({ status: 'success'})
+      console.log('newLog', newLog);
+      res.json({ status: 'success', newContactLog: newLog })
     }
 
   )// update
