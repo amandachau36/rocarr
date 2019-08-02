@@ -157,7 +157,8 @@ let db; // global car to story the db connection object
 
 //set up MongoClient
 // useNewUrlParser is required for Mongo setup
-MongoClient.connect('mongodb://127.0.0.1:27017', { useNewUrlParser: true }, (err, client) => {
+// ''
+MongoClient.connect(`mongodb+srv://AmandaChau:${ ATLAS_PASSWORD }@cluster0-g1ymh.mongodb.net/test?retryWrites=true&w=majority`, { useNewUrlParser: true }, (err, client) => {
   if(err) return console.log(err); // early return on error
   db = client.db('finalProject'); //success
   // console.log(db);
