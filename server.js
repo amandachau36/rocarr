@@ -14,7 +14,8 @@ const atlas_password = process.env.ATLAS_PASSWORD;
 
 // const io = socketIO(chatServer);
 
-const PORT = process.argv[2] || 3333;
+const PORT = process.env['PORT'] || 3333; 
+// const PORT = process.argv[2] || 3333;
 
 var server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -161,7 +162,7 @@ let db; // global car to story the db connection object
 
 //set up MongoClient
 // useNewUrlParser is required for Mongo setup
-// I think the process.env.MONGODB_URI will not work because it's not set up 
+// I think the process.env.MONGODB_URI will not work because it's not set up
 MongoClient.connect( process.env.MONGODB_URI || `mongodb+srv://AmandaChau:${ atlas_password }@cluster0-g1ymh.mongodb.net/test?retryWrites=true&w=majority`
 , { useNewUrlParser: true }, (err, client) => {
   if(err) return console.log(err); // early return on error

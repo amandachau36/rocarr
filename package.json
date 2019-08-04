@@ -6,8 +6,6 @@
   "scripts": {
     "heroku-prebuild": "npm install --dev",
     "start": "node server.js",
-    "build": "webpack",
-    "server": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
