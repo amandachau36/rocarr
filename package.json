@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "heroku-prebuild": "npm install --dev",
     "start": "node server.js",
     "build": "webpack",
     "server": "nodemon server.js",
